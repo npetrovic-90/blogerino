@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Cviebrock\EloquentSluggable\Services\SlugService;
+use File;
 
 class PostsController extends Controller
 {
     public function __construct(){
+
         $this->middleware('auth',[
             'except'=>['index','show']
         ]);
@@ -128,7 +130,12 @@ class PostsController extends Controller
     public function destroy($slug)
     {
         //
-        $post=Post::where('slug',$slug);
+        $post=Post::where('slug',$slug)->first();
+
+        if(File::exists(public_path('images/'.$post->image_path))){
+            File::delete(public_path('images/'.$post->image_path));
+            }
+
         $post->delete();
 
         return redirect('/blog')->with('message','Your post has been deleted!');
